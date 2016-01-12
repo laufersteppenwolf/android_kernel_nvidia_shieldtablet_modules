@@ -52,6 +52,13 @@ static struct regulator *vdd_lcd_bl_en;
 static struct regulator *dvdd_lcd_1v8;
 static struct device *dc_dev;
 
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+	extern bool s2w_scr_suspended;
+#endif
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	extern bool dt2w_scr_suspended;
+#endif
+
 static struct tegra_dc_sd_settings dsi_a_1200_1920_8_0_sd_settings = {
 	.enable = 0, /* disabled by default. */
 	.enable_int = 0, /* disabled by default. */
@@ -315,6 +322,14 @@ static int dsi_a_1200_1920_8_0_enable(struct device *dev)
 	}
 #endif
 	dc_dev = dev;
+	
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+			s2w_scr_suspended = false;
+#endif
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+			dt2w_scr_suspended = false;
+#endif
+	
 	return 0;
 fail:
 	return err;
@@ -340,6 +355,14 @@ static int dsi_a_1200_1920_8_0_disable(void)
 		regulator_disable(dvdd_lcd_1v8);
 
 	dc_dev = NULL;
+	
+#ifdef CONFIG_TOUCHSCREEN_SWEEP2WAKE
+			s2w_scr_suspended = true;
+#endif
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+			dt2w_scr_suspended = true;
+#endif
+	
 	return 0;
 }
 

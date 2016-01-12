@@ -3379,8 +3379,14 @@ struct rm_tch_ts *rm_tch_input_init(struct device *dev, unsigned int irq,
 	rm_tch_set_input_resolution(RM_INPUT_RESOLUTION_X,
 				RM_INPUT_RESOLUTION_Y);
 
+#if ((defined(CONFIG_TOUCHSCREEN_SWEEP2WAKE) || defined(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE)) && defined(TOUCHSCREEN_PREVENT_SLEEP))
+	err = request_threaded_irq(ts->irq, NULL, rm_tch_irq,
+			IRQF_TRIGGER_RISING | IRQF_ONESHOT | IRQF_NO_SUSPEND | IRQF_EARLY_RESUME , dev_name(dev), ts);
+#else
 	err = request_threaded_irq(ts->irq, NULL, rm_tch_irq,
 			IRQF_TRIGGER_RISING | IRQF_ONESHOT, dev_name(dev), ts);
+#endif
+
 	if (err) {
 		dev_err(dev, "Raydium - irq %d busy?\n", ts->irq);
 		goto err_free_mem;
